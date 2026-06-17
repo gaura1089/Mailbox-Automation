@@ -58,7 +58,7 @@ function Generate-RandomPassword {
 }
 
 # =========================================
-# DOMAIN + EXCHANGE CHECK + Azure Check ✅🔥
+# DOMAIN + EXCHANGE + SMTP + AZURE ✅🔥
 # =========================================
 function Alias-Exists {
     param($Alias)
@@ -67,45 +67,30 @@ function Alias-Exists {
 
     $domains = @("IN.COFORGETECH.COM","UK.COFORGETECH.COM","US.COFORGETECH.COM")
 
-    # =========================================
-    # ✅ AD CHECK (SamAccountName)
-    # =========================================
     foreach ($domain in $domains) {
-        $adUser = Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue
-        if ($adUser) { 
+        if (Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue) {
             Write-Host "⚠ Found in AD: $Alias ($domain)" -ForegroundColor Yellow
             return $true 
         }
     }
 
-    # =========================================
-    # ✅ EXCHANGE CHECK (Alias)
-    # =========================================
-    if (Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue) { 
+    if (Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue) {
         Write-Host "⚠ Found in Exchange Alias: $Alias" -ForegroundColor Yellow
         return $true 
     }
 
-    # =========================================
-    # ✅ EXCHANGE CHECK (UPN)
-    # =========================================
-    if (Get-Recipient -Filter "UserPrincipalName -eq '$UPN'" -ErrorAction SilentlyContinue) { 
+    if (Get-Recipient -Filter "UserPrincipalName -eq '$UPN'" -ErrorAction SilentlyContinue) {
         Write-Host "⚠ Found in Exchange UPN: $UPN" -ForegroundColor Yellow
         return $true 
     }
 
-    # =========================================
-    # ✅ ✅ SMTP STRICT CHECK (MOST IMPORTANT FIX 🔥🔥)
-    # =========================================
-    $smtpMatch = Get-Recipient -Filter "EmailAddresses -like '*$UPN*'" -ErrorAction SilentlyContinue
-    if ($smtpMatch) {
+    # ✅ SMTP LEVEL CHECK (MAIN FIX 🔥)
+    if (Get-Recipient -Filter "EmailAddresses -like '*$UPN*'" -ErrorAction SilentlyContinue) {
         Write-Host "⚠ SMTP already in use: $UPN" -ForegroundColor Yellow
         return $true
     }
 
-    # =========================================
-    # ✅ ✅ AZURE AD CHECK (CASE SAFE)
-    # =========================================
+    # ✅ Azure check
     try {
         $azureUser = Get-MgUser -Filter "userPrincipalName eq '$UPN'" -ErrorAction SilentlyContinue
 
@@ -126,6 +111,7 @@ function Alias-Exists {
 
     return $false
 }
+
 # =========================================
 # FINAL ALIAS LOGIC ✅
 # =========================================
@@ -166,7 +152,6 @@ function Get-UniqueAlias {
     $i=1
     while($true){
         $new= if($LastName){"$FirstName.$i.$($LastName[0])"} else {"$FirstName.$i"}
-
         if($new.Length -le $max){
             if(free $new){return $new}
         }
@@ -194,7 +179,6 @@ foreach($user in $Users){
         $OUPath=$OUMap.$OUName
         if(!$OUPath){ throw "Invalid OU: $OUName" }
 
-        # ✅ DisplayName FIX
         if([string]::IsNullOrWhiteSpace($LastName)){
             $DisplayName=$FirstName
         } else {
@@ -214,11 +198,7 @@ foreach($user in $Users){
 
         Write-Host "➡ Processing: $DisplayName ($Alias)"
 
-        # ✅ DRY RUN
-        if($IsDryRun){
-            Write-Host "[DRY RUN] Would create mailbox: $Alias" -ForegroundColor Yellow
-        }
-        else {
+        if(!$IsDryRun){
 
             New-RemoteMailbox `
                 -Name $DisplayName `
@@ -245,20 +225,23 @@ foreach($user in $Users){
 
             Write-Host "✅ SUCCESS: $DisplayName" -ForegroundColor Green
         }
+        else {
+            Write-Host "[DRY RUN] Would create mailbox: $Alias" -ForegroundColor Yellow
+        }
 
-        # ✅ LOG
-        $CustomAttr1 = "$EmpCode,P"
+        # ✅ ALWAYS SET FOR LOG
+        $CustomAttr1="$EmpCode,P"
 
-[PSCustomObject]@{
-    DisplayName = $DisplayName
-    Alias       = $Alias
-    Email       = $UPN
-    EmpCode     = $EmpCode
-    Password    = $Password
-    License     = $License
-    Attribute1  = $CustomAttr1
-    Status      = if($IsDryRun){"DRY_RUN"} else {"SUCCESS"}
-} | Export-Csv $SuccessFile -Append -NoTypeInformation
+        [PSCustomObject]@{
+            DisplayName = $DisplayName
+            Alias       = $Alias
+            Email       = $UPN
+            EmpCode     = $EmpCode
+            Password    = $Password
+            License     = $License
+            Attribute1  = $CustomAttr1
+            Status      = if($IsDryRun){"DRY_RUN"} else {"SUCCESS"}
+        } | Export-Csv $SuccessFile -Append -NoTypeInformation
 
     }
     catch{
@@ -276,10 +259,6 @@ foreach($user in $Users){
 Write-Host ""
 Write-Host "✅ BULK PROCESS COMPLETED ✅" -ForegroundColor Green
 
-# =========================================
-# ✅ RERUN OR EXIT LOGIC
-# =========================================
-Write-Host ""
 Write-Host "Press Y within 10 seconds to run again OR wait to auto exit..." -ForegroundColor Cyan
 
 $startTime = Get-Date
@@ -298,19 +277,13 @@ while ((Get-Date) -lt $startTime.AddSeconds(10)) {
     Start-Sleep -Milliseconds 200
 }
 
-# ✅ IF USER PRESSED Y
 if ($inputReceived -and ($choice -eq "Y" -or $choice -eq "y")) {
 
-    Write-Host ""
-    Write-Host "🔁 Restarting Script..." -ForegroundColor Yellow
+    Write-Host "🔁 Restarting Script..."
     Start-Sleep 1
-
-    # ✅ RECALL SCRIPT
-    & $MyInvocation.MyCommand.Path
+    & $MyInvocation.MyCommand.Path  # ✅ FIXED
 }
 else {
-
-    Write-Host ""
-    Write-Host "⏹ Auto exiting in 3 seconds..." -ForegroundColor DarkGray
+    Write-Host "⏹ Auto exiting..."
     Start-Sleep 3
 }
