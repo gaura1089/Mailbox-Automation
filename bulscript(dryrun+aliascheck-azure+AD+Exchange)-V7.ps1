@@ -247,14 +247,18 @@ foreach($user in $Users){
         }
 
         # ✅ LOG
-        [PSCustomObject]@{
-            DisplayName=$DisplayName
-            Alias=$Alias
-            Email=$UPN
-            EmpCode=$EmpCode
-            Password=$Password
-            Status= if($IsDryRun){"DRY_RUN"} else {"SUCCESS"}
-        } | Export-Csv $SuccessFile -Append -NoTypeInformation
+        $CustomAttr1 = "$EmpCode,P"
+
+[PSCustomObject]@{
+    DisplayName = $DisplayName
+    Alias       = $Alias
+    Email       = $UPN
+    EmpCode     = $EmpCode
+    Password    = $Password
+    License     = $License
+    Attribute1  = $CustomAttr1
+    Status      = if($IsDryRun){"DRY_RUN"} else {"SUCCESS"}
+} | Export-Csv $SuccessFile -Append -NoTypeInformation
 
     }
     catch{
