@@ -1,0 +1,86 @@
+{
+  "Australia | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Australia,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Australia | Overseas | TM Labs": "OU=Users,OU=TM Labs,OU=Australia,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Bengaluru | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | FifthThird": "OU=Users,OU=FifthThird,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | Title": "OU=Users,OU=Title,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | Proctor": "OU=Users,OU=Proctor,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | PHL": "OU=Users,OU=PHL,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | Walmart": "OU=Users,OU=Walmart,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | TMH": "OU=Users,OU=TMH,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | IronMountain": "OU=Users,OU=IronMountain,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+  "Bengaluru | BPS | Accurate": "OU=Users,OU=Accurate,OU=BPS,OU=Bengaluru,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Bhubaneswar | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Bhubaneswar,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Canada | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Canada,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Dubai | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Dubai,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Germany | Overseas | Default": "OU=Users,OU=Germany,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "GreaterNoidaP1 | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=GreaterNoidaP1,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP1 | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=GreaterNoidaP1,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP1 | BPS | PHL": "OU=Users,OU=PHL,OU=BPS,OU=GreaterNoidaP1,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP1 | Coforge | Encora": "OU=Users,OU=Encora,OU=RestofCoforge,OU=GreaterNoidaP1,DC=IN,DC=COFORGETECH,DC=COM",
+   
+
+  "GreaterNoidaP2 | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=GreaterNoidaP2,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP2 | Coforge | Fiserv": "OU=Users,OU=Fiserv,OU=GreaterNoidaP2,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP2 | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=GreaterNoidaP2,DC=IN,DC=COFORGETECH,DC=COM",
+  "GreaterNoidaP2 | BPS | Title": "OU=Users,OU=Title,OU=BPS,OU=GreaterNoidaP2,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Gurugram | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Gurugram,DC=IN,DC=COFORGETECH,DC=COM",
+  "Gurugram | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=Gurugram,DC=IN,DC=COFORGETECH,DC=COM",
+  "Gurugram | BPS | FifthThird": "OU=Users,OU=FifthThird,OU=BPS,OU=Gurugram,DC=IN,DC=COFORGETECH,DC=COM",
+  "Gurugram | BPS | UsBank": "OU=Users,OU=UsBank,OU=BPS,OU=Gurugram,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Hyderabad | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Hyderabad,DC=IN,DC=COFORGETECH,DC=COM",
+  "Hyderabad | Coforge | Cigniti": "OU=Users,OU=Cigniti,OU=Hyderabad,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Kolhapur | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | FifthThird": "OU=Users,OU=FifthThird,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | PHL": "OU=Users,OU=PHL,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | Title": "OU=Users,OU=Title,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | Proctor": "OU=Users,OU=Proctor,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | TMH": "OU=Users,OU=TMH,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+  "Kolhapur | BPS | Walmart": "OU=Users,OU=Walmart,OU=BPS,OU=Kolhapur,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Kolkata | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Kolkata,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Malaysia | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Malaysia,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Manila | Overseas | Default": "OU=Users,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Manila | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Manila | BPS | FifthThird": "OU=Users,OU=FifthThird,OU=BPS,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Manila | BPS | Allied": "OU=Users,OU=Allied,OU=BPS,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Manila | BPS | TMH": "OU=Users,OU=TMH,OU=BPS,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+  "Manila | BPS | KPMG": "OU=Users,OU=KPMG,OU=BPS,OU=Manila,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Mumbai | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Mumbai,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Poland | Overseas | Default": "OU=Users,OU=Poland,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Pune | Coforge | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | Coforge | Fiserv": "OU=Users,OU=Fiserv,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | Proctor": "OU=Users,OU=Proctor,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | RestofBPS": "OU=Users,OU=RestofBPS,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | FifthThird": "OU=Users,OU=FifthThird,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | Title": "OU=Users,OU=Title,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | M&T": "OU=Users,OU=M&T,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | PNQ": "OU=Users,OU=PNQ,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | VBR": "OU=Users,OU=VBR,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | Verifi": "OU=Users,OU=Verifi,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | MSB": "OU=Users,OU=MSB,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | Zions": "OU=Users,OU=Zions,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | Allied": "OU=Users,OU=Allied,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+  "Pune | BPS | UsBank": "OU=Users,OU=UsBank,OU=BPS,OU=Pune,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Singapore | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Singapore,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Spain | Overseas | Default": "OU=Users,OU=Spain,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM",
+
+  "Thailand | Overseas | RestofCoforge": "OU=Users,OU=RestofCoforge,OU=Thailand,OU=OverSeas,DC=IN,DC=COFORGETECH,DC=COM"
+}
