@@ -68,7 +68,7 @@ function Alias-Exists {
     $domains = @("IN.COFORGETECH.COM","UK.COFORGETECH.COM","US.COFORGETECH.COM")
 
     # =========================================
-    # ✅ AD CHECK
+    # ✅ AD CHECK (SamAccountName)
     # =========================================
     foreach ($domain in $domains) {
         $adUser = Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue
@@ -81,8 +81,7 @@ function Alias-Exists {
     # =========================================
     # ✅ EXCHANGE CHECK (Alias)
     # =========================================
-    $recipientAlias = Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue
-    if ($recipientAlias) { 
+    if (Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue) { 
         Write-Host "⚠ Found in Exchange Alias: $Alias" -ForegroundColor Yellow
         return $true 
     }
@@ -90,20 +89,27 @@ function Alias-Exists {
     # =========================================
     # ✅ EXCHANGE CHECK (UPN)
     # =========================================
-    $recipientUPN = Get-Recipient -Filter "UserPrincipalName -eq '$UPN'" -ErrorAction SilentlyContinue
-    if ($recipientUPN) { 
+    if (Get-Recipient -Filter "UserPrincipalName -eq '$UPN'" -ErrorAction SilentlyContinue) { 
         Write-Host "⚠ Found in Exchange UPN: $UPN" -ForegroundColor Yellow
         return $true 
     }
 
     # =========================================
-    # ✅ ✅ AZURE AD CHECK (CASE SAFE 🔥)
+    # ✅ ✅ SMTP STRICT CHECK (MOST IMPORTANT FIX 🔥🔥)
+    # =========================================
+    $smtpMatch = Get-Recipient -Filter "EmailAddresses -like '*$UPN*'" -ErrorAction SilentlyContinue
+    if ($smtpMatch) {
+        Write-Host "⚠ SMTP already in use: $UPN" -ForegroundColor Yellow
+        return $true
+    }
+
+    # =========================================
+    # ✅ ✅ AZURE AD CHECK (CASE SAFE)
     # =========================================
     try {
         $azureUser = Get-MgUser -Filter "userPrincipalName eq '$UPN'" -ErrorAction SilentlyContinue
 
         if (-not $azureUser) {
-            # ✅ fallback case-insensitive check
             $azureUser = Get-MgUser -All -ErrorAction SilentlyContinue | Where-Object {
                 $_.UserPrincipalName.ToLower() -eq $UPN.ToLower()
             }
@@ -120,7 +126,6 @@ function Alias-Exists {
 
     return $false
 }
-
 # =========================================
 # FINAL ALIAS LOGIC ✅
 # =========================================
