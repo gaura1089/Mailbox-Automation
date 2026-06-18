@@ -58,68 +58,86 @@ function Generate-RandomPassword {
 }
 
 # =========================================
-# DOMAIN + EXCHANGE + SMTP + AZURE ✅🔥
+# ✅ OPTIMIZED Alias Check (FAST + SAFE)
 # =========================================
 function Alias-Exists {
     param($Alias)
 
     $UPN = "$Alias@coforge.com"
-    $UPNLower = $UPN.ToLower()
+
+    Write-Host ""
+    Write-Host "🔍 Checking Alias: $Alias" -ForegroundColor Cyan
 
     $domains = @("IN.COFORGETECH.COM","UK.COFORGETECH.COM","US.COFORGETECH.COM")
 
+    # =========================================
     # ✅ AD CHECK
+    # =========================================
     foreach ($domain in $domains) {
-        if (Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue) {
-            Write-Host "⚠ Found in AD: $Alias ($domain)" -ForegroundColor Yellow
+        Write-Host "   ➤ Checking AD ($domain)..."
+
+        $adUser = Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue
+
+        if ($adUser) {
+            Write-Host "   ⚠ FOUND in AD: $Alias ($domain)" -ForegroundColor Yellow
             return $true
         }
     }
 
-    # ✅ EXCHANGE FULL CHECK (STRICT)
-    $recipients = Get-Recipient -ResultSize Unlimited -ErrorAction SilentlyContinue
+    # =========================================
+    # ✅ EXCHANGE CHECK (MAILBOX)
+    # =========================================
+    Write-Host "   ➤ Checking Exchange Mailbox..."
 
-    foreach ($r in $recipients) {
-
-        # Alias match
-        if ($r.Alias -eq $Alias) {
-            Write-Host "⚠ Found in Exchange Alias: $Alias" -ForegroundColor Yellow
-            return $true
-        }
-
-        # UPN match
-        if ($r.UserPrincipalName -and ($r.UserPrincipalName.ToLower() -eq $UPNLower)) {
-            Write-Host "⚠ Found Exchange UPN: $UPN" -ForegroundColor Yellow
-            return $true
-        }
-
-        # SMTP match (MOST RELIABLE 🔥)
-        foreach ($mail in $r.EmailAddresses) {
-            if ($mail.ToString().ToLower() -like "*$UPNLower*") {
-                Write-Host "⚠ Found Exchange SMTP: $UPN" -ForegroundColor Yellow
-                return $true
-            }
-        }
+    $mb = Get-Mailbox -Identity $UPN -ErrorAction SilentlyContinue
+    if ($mb) {
+        Write-Host "   ⚠ FOUND in Exchange Mailbox: $UPN" -ForegroundColor Yellow
+        return $true
     }
 
-    # ✅ AZURE FULL CHECK (STRICT ✅🔥)
+    Write-Host "   ➤ Checking RemoteMailbox..."
+
+    $rmb = Get-RemoteMailbox -Identity $UPN -ErrorAction SilentlyContinue
+    if ($rmb) {
+        Write-Host "   ⚠ FOUND in RemoteMailbox: $UPN" -ForegroundColor Yellow
+        return $true
+    }
+
+    # =========================================
+    # ✅ EXCHANGE ALIAS
+    # =========================================
+    Write-Host "   ➤ Checking Exchange Alias..."
+
+    $aliasCheck = Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue
+    if ($aliasCheck) {
+        Write-Host "   ⚠ FOUND in Exchange Alias: $Alias" -ForegroundColor Yellow
+        return $true
+    }
+
+    # =========================================
+    # ✅ AZURE AD CHECK
+    # =========================================
+    Write-Host "   ➤ Checking Azure AD..."
+
     try {
-        $allUsers = Get-MgUser -All -ErrorAction SilentlyContinue
+        $azureUser = Get-MgUser -Filter "userPrincipalName eq '$UPN'" -ErrorAction SilentlyContinue
 
-        foreach ($user in $allUsers) {
-            if ($user.UserPrincipalName -and ($user.UserPrincipalName.ToLower() -eq $UPNLower)) {
-                Write-Host "⚠ Found in Azure AD: $UPN" -ForegroundColor Yellow
-                return $true
-            }
+        if ($azureUser) {
+            Write-Host "   ⚠ FOUND in Azure AD: $UPN" -ForegroundColor Yellow
+            return $true
         }
     }
     catch {
-        Write-Host "⚠ Azure check failed (ignored)" -ForegroundColor DarkYellow
+        Write-Host "   ⚠ Azure check failed"
     }
+
+    # =========================================
+    # ❌ NOT FOUND
+    # =========================================
+    Write-Host "   ✅ NOT FOUND anywhere: $Alias" -ForegroundColor Green
 
     return $false
 }
-
 # =========================================
 # FINAL ALIAS LOGIC ✅
 # =========================================
@@ -237,7 +255,7 @@ foreach($user in $Users){
             Write-Host "[DRY RUN] Would create mailbox: $Alias" -ForegroundColor Yellow
         }
 
-        # ✅ ALWAYS SET FOR LOG
+        # ✅ LOG
         $CustomAttr1="$EmpCode,P"
 
         [PSCustomObject]@{
@@ -286,10 +304,9 @@ while ((Get-Date) -lt $startTime.AddSeconds(10)) {
 }
 
 if ($inputReceived -and ($choice -eq "Y" -or $choice -eq "y")) {
-
     Write-Host "🔁 Restarting Script..."
     Start-Sleep 1
-    & $MyInvocation.MyCommand.Path  # ✅ FIXED
+    & $MyInvocation.MyCommand.Path   # ✅ FINAL FIX
 }
 else {
     Write-Host "⏹ Auto exiting..."
