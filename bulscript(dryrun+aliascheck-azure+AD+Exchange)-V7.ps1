@@ -64,45 +64,53 @@ function Alias-Exists {
     param($Alias)
 
     $UPN = "$Alias@coforge.com"
+    $UPNLower = $UPN.ToLower()
 
     $domains = @("IN.COFORGETECH.COM","UK.COFORGETECH.COM","US.COFORGETECH.COM")
 
+    # ✅ AD CHECK
     foreach ($domain in $domains) {
         if (Get-ADUser -Filter "SamAccountName -eq '$Alias'" -Server $domain -ErrorAction SilentlyContinue) {
             Write-Host "⚠ Found in AD: $Alias ($domain)" -ForegroundColor Yellow
-            return $true 
+            return $true
         }
     }
 
-    if (Get-Recipient -Filter "Alias -eq '$Alias'" -ErrorAction SilentlyContinue) {
-        Write-Host "⚠ Found in Exchange Alias: $Alias" -ForegroundColor Yellow
-        return $true 
-    }
+    # ✅ EXCHANGE FULL CHECK (STRICT)
+    $recipients = Get-Recipient -ResultSize Unlimited -ErrorAction SilentlyContinue
 
-    if (Get-Recipient -Filter "UserPrincipalName -eq '$UPN'" -ErrorAction SilentlyContinue) {
-        Write-Host "⚠ Found in Exchange UPN: $UPN" -ForegroundColor Yellow
-        return $true 
-    }
+    foreach ($r in $recipients) {
 
-    # ✅ SMTP LEVEL CHECK (MAIN FIX 🔥)
-    if (Get-Recipient -Filter "EmailAddresses -like '*$UPN*'" -ErrorAction SilentlyContinue) {
-        Write-Host "⚠ SMTP already in use: $UPN" -ForegroundColor Yellow
-        return $true
-    }
+        # Alias match
+        if ($r.Alias -eq $Alias) {
+            Write-Host "⚠ Found in Exchange Alias: $Alias" -ForegroundColor Yellow
+            return $true
+        }
 
-    # ✅ Azure check
-    try {
-        $azureUser = Get-MgUser -Filter "userPrincipalName eq '$UPN'" -ErrorAction SilentlyContinue
+        # UPN match
+        if ($r.UserPrincipalName -and ($r.UserPrincipalName.ToLower() -eq $UPNLower)) {
+            Write-Host "⚠ Found Exchange UPN: $UPN" -ForegroundColor Yellow
+            return $true
+        }
 
-        if (-not $azureUser) {
-            $azureUser = Get-MgUser -All -ErrorAction SilentlyContinue | Where-Object {
-                $_.UserPrincipalName.ToLower() -eq $UPN.ToLower()
+        # SMTP match (MOST RELIABLE 🔥)
+        foreach ($mail in $r.EmailAddresses) {
+            if ($mail.ToString().ToLower() -like "*$UPNLower*") {
+                Write-Host "⚠ Found Exchange SMTP: $UPN" -ForegroundColor Yellow
+                return $true
             }
         }
+    }
 
-        if ($azureUser) {
-            Write-Host "⚠ Found in Azure AD: $UPN" -ForegroundColor Yellow
-            return $true
+    # ✅ AZURE FULL CHECK (STRICT ✅🔥)
+    try {
+        $allUsers = Get-MgUser -All -ErrorAction SilentlyContinue
+
+        foreach ($user in $allUsers) {
+            if ($user.UserPrincipalName -and ($user.UserPrincipalName.ToLower() -eq $UPNLower)) {
+                Write-Host "⚠ Found in Azure AD: $UPN" -ForegroundColor Yellow
+                return $true
+            }
         }
     }
     catch {
