@@ -2,26 +2,20 @@ $ErrorActionPreference = "Stop"
 Import-Module ActiveDirectory
 
 # =========================================
-# DRY RUN SELECTION ✅ (UPGRADED)
+# DRY RUN SELECTION ✅
 # =========================================
 Write-Host ""
 Write-Host "Select Run Mode:" -ForegroundColor Cyan
 Write-Host "1. Dry Run (No changes)"
 Write-Host "2. Actual Execution"
-Write-Host "3. EmpCode Check Only ✅"
 
-$choice = Read-Host "Enter choice (1/2/3)"
+$choice = Read-Host "Enter choice (1/2)"
 
-$IsDryRun   = $choice -eq "1"
-$IsCheckOnly= $choice -eq "3"
+$IsDryRun = $choice -eq "1"
 
 if ($IsDryRun) {
     Write-Host "✅ DRY RUN MODE ENABLED" -ForegroundColor Yellow
-}
-elseif ($IsCheckOnly) {
-    Write-Host "✅ EMP CODE CHECK MODE ENABLED" -ForegroundColor Cyan
-}
-else {
+} else {
     Write-Host "✅ ACTUAL EXECUTION MODE" -ForegroundColor Green
 }
 
@@ -42,21 +36,19 @@ $Users = Import-Csv $csvPath
 $OUMap = Get-Content $OUConfigPath -Raw | ConvertFrom-Json
 $Cred = Import-Clixml $CredPath
 
-# LOG FILES
+# ✅ LOG FILES
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $SuccessFile = "$LogFolder\bulk_success_$timestamp.csv"
 $ErrorFile   = "$LogFolder\bulk_error_$timestamp.csv"
 
 # =========================================
-# EXCHANGE CONNECT (SAFE)
+# ✅ EXCHANGE CONNECT (ALWAYS ✅)
 # =========================================
-if ($choice -eq "2") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange `
-        -ConnectionUri http://IN-TZ1-EXMBX2.in.coforgetech.com/PowerShell/ `
-        -Authentication Kerberos -Credential $Cred
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange `
+    -ConnectionUri http://IN-TZ1-EXMBX2.in.coforgetech.com/PowerShell/ `
+    -Authentication Kerberos -Credential $Cred
 
-    Import-PSSession $Session -DisableNameChecking -AllowClobber | Out-Null
-}
+Import-PSSession $Session -DisableNameChecking -AllowClobber | Out-Null
 
 # =========================================
 # PASSWORD
@@ -67,7 +59,7 @@ function Generate-RandomPassword {
 }
 
 # =========================================
-# ALIAS CHECK (UNCHANGED ✅)
+# ALIAS CHECK ✅ (UNCHANGED)
 # =========================================
 function Alias-Exists {
     param($Alias)
@@ -118,7 +110,7 @@ function Alias-Exists {
 }
 
 # =========================================
-# ALIAS GENERATION (UNCHANGED ✅)
+# ALIAS GENERATION ✅
 # =========================================
 function Get-UniqueAlias {
     param($FirstName,$LastName)
@@ -135,6 +127,7 @@ function Get-UniqueAlias {
     if($LastName){
         $full="$FirstName.$LastName"
         if(free $full){return $full}
+
         $i=1
         while($true){
             $new="$FirstName.$i.$LastName"
@@ -144,22 +137,11 @@ function Get-UniqueAlias {
         }
     }
 
-    $short= if($LastName){"$FirstName.$($LastName[0])"} else {$FirstName}
-    if($short.Length -gt $max){$short=$FirstName.Substring(0,$max)}
-    if(free $short){return $short}
-
-    $i=1
-    while($true){
-        $new= if($LastName){"$FirstName.$i.$($LastName[0])"} else {"$FirstName.$i"}
-        if($new.Length -le $max){
-            if(free $new){return $new}
-        }
-        $i++
-    }
+    return $FirstName
 }
 
 # =========================================
-# MAIN LOOP (UPGRADED ✅)
+# MAIN LOOP (UPDATED ✅)
 # =========================================
 foreach($user in $Users){
 
@@ -171,14 +153,14 @@ foreach($user in $Users){
         $OUName=$user.OU
         $License=$user.License
 
-        # ✅ EMP FORMAT
-        $EmpCodeFormatted = $EmpCodeRaw.ToString().Trim().PadLeft(8,'0')
-        $CustomAttr1 = "$EmpCodeFormatted,P"
+        # ✅ EMP 8 DIGIT FORMAT
+        $EmpCode = $EmpCodeRaw.ToString().PadLeft(8,'0')
+        $CustomAttr1 = "$EmpCode,P"
 
         Write-Host ""
         Write-Host "🔍 Checking EmpCode in AD: $CustomAttr1" -ForegroundColor Cyan
 
-        $EmpCheck = Get-ADUser -Filter "Description -eq '$CustomAttr1'" -Properties Description -ErrorAction SilentlyContinue
+        $EmpCheck = Get-ADUser -Filter "Description -eq '$CustomAttr1'" -ErrorAction SilentlyContinue
 
         if ($EmpCheck) {
             Write-Host "❌ SKIPPED: EmpCode already exists → $CustomAttr1" -ForegroundColor Red
@@ -187,7 +169,7 @@ foreach($user in $Users){
                 DisplayName = "$FirstName $LastName"
                 Alias       = "N/A"
                 Email       = "N/A"
-                EmpCode     = $EmpCodeFormatted
+                EmpCode     = $EmpCode
                 Password    = "N/A"
                 License     = $License
                 Attribute1  = $CustomAttr1
@@ -196,21 +178,11 @@ foreach($user in $Users){
 
             continue
         }
-        else {
-            Write-Host "✅ EmpCode safe → continuing..." -ForegroundColor Green
-        }
 
-        if ($IsCheckOnly) { continue }
-
-        # ✅ NORMAL FLOW
         $OUPath=$OUMap.$OUName
         if(!$OUPath){ throw "Invalid OU: $OUName" }
 
-        $DisplayName= if([string]::IsNullOrWhiteSpace($LastName)){$FirstName}else{"$FirstName $LastName"}
-
-        if(Get-ADUser -Filter "DisplayName -eq '$DisplayName'" -ErrorAction SilentlyContinue){
-            $DisplayName="$DisplayName - $EmpCodeFormatted"
-        }
+        $DisplayName="$FirstName $LastName"
 
         $Alias=Get-UniqueAlias $FirstName $LastName
         $UPN="$Alias@coforge.com"
@@ -255,7 +227,7 @@ foreach($user in $Users){
             DisplayName = $DisplayName
             Alias       = $Alias
             Email       = $UPN
-            EmpCode     = $EmpCodeFormatted
+            EmpCode     = $EmpCode
             Password    = $Password
             License     = $License
             Attribute1  = $CustomAttr1
@@ -272,5 +244,4 @@ Write-Host ""
 Write-Host "✅ BULK PROCESS COMPLETED ✅"
 
 # ✅ FIXED RERUN
-if ($Host.UI.RawUI.KeyAvailable) {}
 & $MyInvocation.MyCommand.Path
