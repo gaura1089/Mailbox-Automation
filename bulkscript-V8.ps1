@@ -2,20 +2,26 @@ $ErrorActionPreference = "Stop"
 Import-Module ActiveDirectory
 
 # =========================================
-# DRY RUN SELECTION ✅
+# ✅ RUN MODE
 # =========================================
 Write-Host ""
 Write-Host "Select Run Mode:" -ForegroundColor Cyan
 Write-Host "1. Dry Run (No changes)"
 Write-Host "2. Actual Execution"
+Write-Host "3. EmpCode Check Only ✅"
 
-$choice = Read-Host "Enter choice (1/2)"
+$choice = Read-Host "Enter choice (1/2/3)"
 
 $IsDryRun = $choice -eq "1"
+$IsCheckOnly = $choice -eq "3"
 
 if ($IsDryRun) {
     Write-Host "✅ DRY RUN MODE ENABLED" -ForegroundColor Yellow
-} else {
+}
+elseif ($IsCheckOnly) {
+    Write-Host "✅ EMP CODE CHECK ONLY MODE ENABLED" -ForegroundColor Cyan
+}
+else {
     Write-Host "✅ ACTUAL EXECUTION MODE" -ForegroundColor Green
 }
 
@@ -42,7 +48,7 @@ $SuccessFile = "$LogFolder\bulk_success_$timestamp.csv"
 $ErrorFile   = "$LogFolder\bulk_error_$timestamp.csv"
 
 # =========================================
-# ✅ EXCHANGE CONNECT (ALWAYS ✅)
+# ✅ EXCHANGE CONNECT (ALWAYS)
 # =========================================
 $Session = New-PSSession -ConfigurationName Microsoft.Exchange `
     -ConnectionUri http://IN-TZ1-EXMBX2.in.coforgetech.com/PowerShell/ `
@@ -110,7 +116,7 @@ function Alias-Exists {
 }
 
 # =========================================
-# ALIAS GENERATION ✅
+# ALIAS GENERATION ✅ (UNCHANGED)
 # =========================================
 function Get-UniqueAlias {
     param($FirstName,$LastName)
@@ -141,7 +147,7 @@ function Get-UniqueAlias {
 }
 
 # =========================================
-# MAIN LOOP (UPDATED ✅)
+# MAIN LOOP ✅
 # =========================================
 foreach($user in $Users){
 
@@ -149,13 +155,13 @@ foreach($user in $Users){
 
         $FirstName=$user.FirstName
         $LastName=$user.LastName
-        $EmpCodeRaw=$user.EmpCode
+        $EmpCode=$user.EmpCode
         $OUName=$user.OU
         $License=$user.License
 
-        # ✅ EMP 8 DIGIT FORMAT
-        $EmpCode = $EmpCodeRaw.ToString().PadLeft(8,'0')
-        $CustomAttr1 = "$EmpCode,P"
+        # ✅ EMP FORMAT + CHECK
+        $EmpCodeFormatted = $EmpCode.ToString().Trim().PadLeft(8,'0')
+        $CustomAttr1 = "$EmpCodeFormatted,P"
 
         Write-Host ""
         Write-Host "🔍 Checking EmpCode in AD: $CustomAttr1" -ForegroundColor Cyan
@@ -169,7 +175,7 @@ foreach($user in $Users){
                 DisplayName = "$FirstName $LastName"
                 Alias       = "N/A"
                 Email       = "N/A"
-                EmpCode     = $EmpCode
+                EmpCode     = $EmpCodeFormatted
                 Password    = "N/A"
                 License     = $License
                 Attribute1  = $CustomAttr1
@@ -178,7 +184,17 @@ foreach($user in $Users){
 
             continue
         }
+        else {
+            Write-Host "✅ EmpCode safe → continuing..." -ForegroundColor Green
+        }
 
+        # ✅ ONLY CHECK MODE
+        if ($IsCheckOnly) {
+            Write-Host "ℹ Skipped creation (EmpCode check only mode)" -ForegroundColor DarkCyan
+            continue
+        }
+
+        # ✅ ORIGINAL FLOW
         $OUPath=$OUMap.$OUName
         if(!$OUPath){ throw "Invalid OU: $OUName" }
 
@@ -227,7 +243,7 @@ foreach($user in $Users){
             DisplayName = $DisplayName
             Alias       = $Alias
             Email       = $UPN
-            EmpCode     = $EmpCode
+            EmpCode     = $EmpCodeFormatted
             Password    = $Password
             License     = $License
             Attribute1  = $CustomAttr1
